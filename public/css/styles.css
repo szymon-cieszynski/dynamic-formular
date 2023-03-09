@@ -1,0 +1,15 @@
+body {
+    background-color: #93c5fd;
+
+}
+
+h3 {
+    text-align: center;
+}
+
+.text-field {
+    background-color: #F5F5F5;
+    border: 1px solid #CCC;
+    padding: 5px;
+    border-radius: 3px;
+}

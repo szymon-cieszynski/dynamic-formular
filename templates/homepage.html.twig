@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<main>
+    <section>
+        <div class="container my-5">
+            <header>
+                <h3>
+                    Witam w dynamicznym formularzu, gdzie możesz dodawać i edytować istniejące pola.
+                </h3>
+            </header>
+            
+            <button type="button" class="btn btn-primary" id="add-field-button">Dodaj nowe pole</button>
+            <div id="dynamic-fields-container" class="container my-3">
+            </div>
+
+            <h4>Wszystkie pola tekstowe:</h4>
+            <ul>
+                {% for textField in textField %}
+                        <li>{{ textField.getTextField() }} <button class="edit-button" data-id="{{ textField.id }}">Edytuj</button></li>
+                {% endfor %}
+            </ul>
+            
+            <div id="edit-form-container"></div>   
+
+        </div>
+    </section>
+        
+    <script>
+    $(document).ready(function() {
+        const container = $('#dynamic-fields-container');
+        let index = 0;
+
+        $('#add-field-button').click(function() {
+            const newField = $('{{ form_row(form.textField, {'attr': {'class': 'form-control text-field', 'data-rule-minlength': '3'}}) }}'); 
+            const newButton = $('<button type="submit" class="btn btn-primary">Wyślij</button>');
+            const newForm = $('<form method="POST" action="{{ path('homepage') }}"/>').append(newField).append(newButton);
+            const newDiv = $('<div class="form-group">').append(newForm);
+
+            container.append(newDiv);
+            newDiv.show();
+            index++;
+
+            newForm.validate({
+                rules: {
+                    ['text_field' + (index - 1)]: {
+                        required: true
+                    }
+                }
+            }); 
+        });
+    });
+    $(document).ready(function() {
+        const container = $('#edit-form-container');
+        const form = $('<form method="POST"/>');
+        const textFieldInput = $('<input type="text" name="text_field" class="form-control text-field">');
+        const submitButton = $('<button type="submit" class="btn btn-primary">Zapisz</button>');
+
+        form.append(textFieldInput).append(submitButton);
+        container.html(form).hide();
+
+        form.validate({
+            rules: {
+                text_field: {
+                    required: true,
+                    minlength: 3,
+                }
+            },
+            messages: {
+                text_field: {
+                    required: "To pole jest wymagane!"
+                }
+            }
+        });
+
+        $(document).on('click', '.edit-button', function() {
+            const textFieldId = $(this).data('id');
+
+            form.attr('action', '/update_textfield/' + textFieldId);
+            textFieldInput.val('');
+            container.show();
+        });
+
+        form.on('submit', function() {
+            container.hide();
+        });
+    });
+
+    </script>
+</main>
+
+{% endblock %}
